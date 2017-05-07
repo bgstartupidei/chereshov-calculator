@@ -6,9 +6,10 @@
   <title>Черешов калкулатор</title>
   <style type="text/css">
     body {
-      background: #61BD4F;
+      background: #EB5A46;
       color: #4D4D4D;
-      font-family: "Helvetica Neue",Arial,Helvetica,sans-serif
+      font-family: "Helvetica Neue",Arial,Helvetica,sans-serif;
+      font-size: 1.6em;
     }
     footer a, header a, header a:visited{
       color: #fff;
@@ -16,15 +17,35 @@
     }
     footer {
       margin: 1em 0 0;
-      padding: 1em;
       text-align: right;
+    }
+    header {
+      text-align: center;
     }
     #container {
       margin: 0 auto;
-      max-width: 480px;
+      max-width: 600px;
     }
     #app {
       background: #fff;
+    }
+    #result {
+      font-weight: bold;
+    }
+    .inner {
+      padding: 1em;
+    }
+    .form-group {
+      margin-bottom: .6em;
+    }
+    .form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: .2em;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      font-size: 1em;
     }
   </style>
 </head>
@@ -44,19 +65,23 @@
       <h1><a href="/">Черешов калкулатор</a></h1>
     </header>
     <div id="app">
-      <form>
-        <div class="form-group">
-          <label for="salary">Нетна заплата</label>
-          <input name="salary" id="salary" />
-        </div>
-        <div class="form-group">
-          <label for="stock">Стока</label>
-          <select id="stock" name="stock">
-            <option value="50">Череши (1kg)</option>
-          </select>
-        </div>
-      </form>
-      <div id="results">
+      <div class="inner">
+        <form>
+          <div class="form-group">
+            <label for="salary">Нетна заплата (лв)</label>
+            <input name="salary" id="salary" />
+          </div>
+          <div class="form-group">
+            <label for="stock">Стока</label>
+            <select id="stock" name="stock">
+              <option value="50" data-label="килограма череши">Череши (kg)</option>
+              <option value="3.49" data-label="дюнера">Пилешки среден дюнер Мимас (бр)</option>
+              <option value="0.99" data-label="кисели млека">Кисело мляко Верея 3.6% БДС (бр)</option>
+            </select>
+          </div>
+        </form>
+        <hr/>
+        <div id="result"></div>
       </div>
     </div>
     <br style="clear: both"/>
@@ -66,16 +91,31 @@
   </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.slim.js"></script>
   <script>
-    function calculate() {
-      console.log('Череши');
+    function getResult(salary, price, label) {
+      if (salary) {
+        var result = (salary / price).toFixed(2);
+        return `Със заплата от ${salary} лева можете да си купите ${result} ${label} при единична цена ${price} лв.`;
+      }
+      return '';
     }
 
-    $(document).ready(()=>{
-      $('#salary').on('keydown', () => {
-        calculate();
+    $(document).ready(() => {
+      var $salary = $('#salary');
+      var $stock = $('#stock');
+      var $result = $('#result');
+
+      function calculate() {
+        var salary = parseFloat($salary.val()) || 0;
+        var price = parseFloat($stock.val()) || 0;
+        var label = $stock.children(':selected').data('label');
+        return getResult(salary, price, label);
+      }
+
+      $('#salary').on('keyup', () => {
+        $result.text(calculate());
       });
       $('#stock').on('change', () => {
-        calculate();
+        $result.text(calculate());
       });
     });
   </script>
